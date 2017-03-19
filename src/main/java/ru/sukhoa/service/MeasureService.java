@@ -9,11 +9,11 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class MeasureService {
-    private Map<MeasureEvent, BaseMeasurer> measurers = new ConcurrentHashMap<>();
+    private Map<MeasureEvent, Measurer> measurers = new ConcurrentHashMap<>();
 
     public MeasureService() {
         for (MeasureEvent event : MeasureEvent.values()) {
-            measurers.put(event, new BaseMeasurer());
+            measurers.put(event, new Measurer());
         }
     }
 
@@ -33,12 +33,12 @@ public class MeasureService {
         return getAproppriateMeasurer(event).getNumberOfOperations();
     }
 
-    private BaseMeasurer getAproppriateMeasurer(@Nullable MeasureEvent event) {
+    private Measurer getAproppriateMeasurer(@Nullable MeasureEvent event) {
         if (event == null) {
             throw new IllegalArgumentException("Measure event must not be a null");
         }
 
-        BaseMeasurer measurer = measurers.get(event);
+        Measurer measurer = measurers.get(event);
         if (measurer == null) {
             throw new IllegalArgumentException("Unsupportable measure event");
         }

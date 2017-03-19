@@ -9,7 +9,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class BaseMeasurer {
+public class Measurer {
     private AtomicLong totalTime = new AtomicLong();
     private AtomicLong numOfOperations = new AtomicLong();
 
