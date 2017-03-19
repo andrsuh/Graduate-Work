@@ -1,0 +1,56 @@
+drop table node CASCADE ;
+drop table assign_attribute ;
+drop table attribute_value CASCADE;
+drop table graph_link CASCADE;
+
+
+create table node (
+    id VARCHAR(40) primary key,
+    type VARCHAR(40),
+    name VARCHAR(40) not null,
+    part_of VARCHAR(40) references node(id)
+);
+
+create table attribute_value (
+    id VARCHAR(40) primary key,
+    boolean_attr_value boolean
+);
+
+create table assign_attribute (
+    id VARCHAR(40) primary key,
+    node_id VARCHAR(40) references node(id),
+    attr_value_id VARCHAR(40) references attribute_value(id)
+);
+
+create table graph_link (
+    id integer PRIMARY KEY,
+    left_node VARCHAR(40) ,
+    right_node VARCHAR(40) ,
+    CONSTRAINT graph_link_fkey1 FOREIGN KEY (left_node)
+        REFERENCES node (id)
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION,
+    CONSTRAINT graph_link_fkey2 FOREIGN KEY (right_node)
+        REFERENCES node (id)
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+);
+
+
+WITH RECURSIVE q AS
+(SELECT *, 1 AS level FROM node n WHERE n.part_of = '605c9233-8a65-4e02-a134-3bf55b032b80'
+    UNION ALL
+  SELECT n.*, 1 + level AS level FROM node n
+  JOIN q
+  ON n.part_of = q.id
+)
+SELECT * FROM q;
+
+WITH RECURSIVE q AS
+(SELECT *, 1 AS level FROM node n WHERE n.id = '605c9233-8a65-4e02-a134-3bf55b032b80'
+    UNION ALL
+  SELECT n.*, 1 + level AS level FROM node n
+  JOIN q
+  ON n.part_of = q.id
+)
+SELECT * FROM q;
