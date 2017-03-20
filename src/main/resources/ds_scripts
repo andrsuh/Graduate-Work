@@ -7,8 +7,8 @@ drop table graph_link CASCADE;
 create table node (
     id VARCHAR(40) primary key,
     type VARCHAR(40),
-    name VARCHAR(40) not null,
-    part_of VARCHAR(40) references node(id)
+    name VARCHAR(40) not null
+--     part_of VARCHAR(40) references node(id)
 );
 
 create table attribute_value (
@@ -23,8 +23,8 @@ create table assign_attribute (
 );
 
 create table graph_link (
-    id integer PRIMARY KEY,
-    left_node VARCHAR(40) ,
+    id VARCHAR(40) PRIMARY KEY,
+    left_node VARCHAR(40),
     right_node VARCHAR(40) ,
     CONSTRAINT graph_link_fkey1 FOREIGN KEY (left_node)
         REFERENCES node (id)
@@ -37,20 +37,35 @@ create table graph_link (
 );
 
 
+ -- fetch subtree in root of
 WITH RECURSIVE q AS
-(SELECT *, 1 AS level FROM node n WHERE n.part_of = '605c9233-8a65-4e02-a134-3bf55b032b80'
+(SELECT *, 1 AS level FROM node n WHERE n.id = '4fe252f3-ccf4-47ae-bdc8-a99b2956aad1'
     UNION ALL
-  SELECT n.*, 1 + level AS level FROM node n
-  JOIN q
-  ON n.part_of = q.id
+  SELECT n.*, 1 + level AS level FROM graph_link l
+  JOIN q ON l.right_node = q.id
+  JOIN node n ON n.id = l.left_node
 )
 SELECT * FROM q;
 
-WITH RECURSIVE q AS
-(SELECT *, 1 AS level FROM node n WHERE n.id = '605c9233-8a65-4e02-a134-3bf55b032b80'
+
+-- isNOdeDecendantOfAnother
+
+WITH RECURSIVE q AS (
+  SELECT n.* FROM node n
+  JOIN graph_link l ON n.id = l.right_node
+  WHERE l.left_node = '4fe252f3-ccf4-47ae-bdc8-a99b2956aad'
     UNION ALL
-  SELECT n.*, 1 + level AS level FROM node n
-  JOIN q
-  ON n.part_of = q.id
+  SELECT n.* FROM graph_link l
+  JOIN q ON q.id = l.left_node
+  JOIN node n ON n.id = l.right_node
 )
-SELECT * FROM q;
+SELECT CASE WHEN COUNT(*) > 0 THEN TRUE ELSE FALSE END
+FROM q
+WHERE q.id = '139855a49-6c1d-4b85-8065-43f7b1c5235a';
+
+
+
+-- Neo4j scripts
+
+MATCH (n)-[r:PART_OF]-(a) DELETE r;
+MATCH (n:node) DELETE n;

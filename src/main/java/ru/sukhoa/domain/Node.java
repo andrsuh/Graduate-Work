@@ -22,15 +22,15 @@ public class Node {
     private String name;
 
     //    @JsonProperty(value = "partOf")
-    private Node partOf;
+    private Set<Node> partOf;
     private String type;
 
     @JsonIgnore
     private Set<AssignedAttribute> attributes;
 
-    public Node(String name, Node partOfNode, Set<AssignedAttribute> attributes) {
+    public Node(String name, Set<Node> partOf, Set<AssignedAttribute> attributes) {
         this.name = name;
-        this.partOf = partOfNode;
+        this.partOf = partOf;
         this.attributes = attributes;
     }
 
@@ -78,15 +78,18 @@ public class Node {
         this.name = name;
     }
 
-    //    @JsonIgnore
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "part_of", referencedColumnName = "id")
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "graph_link",
+            joinColumns = @JoinColumn(name = "left_node"),
+            inverseJoinColumns = @JoinColumn(name = "right_node")
+    )
     @Relationship(type = "PART_OF", direction = Relationship.OUTGOING)
-    public Node getPartOf() {
+    public Set<Node> getPartOf() {
         return partOf;
     }
 
-    public void setPartOf(Node partOf) {
+    public void setPartOf(Set<Node> partOf) {
         this.partOf = partOf;
     }
 

@@ -4,22 +4,28 @@ import com.sun.istack.internal.NotNull;
 import com.sun.istack.internal.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import ru.sukhoa.DAO.Neo4j.GraphLinkRepositoryNeo4j;
 import ru.sukhoa.DAO.Neo4j.NodeRepositoryNeo4j;
 import ru.sukhoa.DAO.Postgres.GraphLinkRepositoryPostgres;
 import ru.sukhoa.DAO.Postgres.NodeRepositoryPostgres;
 import ru.sukhoa.domain.GraphLink;
 import ru.sukhoa.domain.Node;
 
-import javax.validation.constraints.Null;
+import java.util.UUID;
 
 @Service
 public class GraphLinkService {
 
     private NodeRepositoryPostgres psRepository;
 
-    private GraphLinkRepositoryPostgres graphLinkRepository;
+    private GraphLinkRepositoryNeo4j graphLinkRepositoryNeo4j;
+
+    private GraphLinkRepositoryPostgres graphLinkRepositoryPostgres;
 
     private NodeRepositoryNeo4j neoRepository;
+
+    private MeasureService measureService;
 
     @Autowired
     public void setPsRepository(NodeRepositoryPostgres psRepository) {
@@ -27,8 +33,13 @@ public class GraphLinkService {
     }
 
     @Autowired
-    public void setGraphLinkRepository(GraphLinkRepositoryPostgres graphLinkRepository) {
-        this.graphLinkRepository = graphLinkRepository;
+    public void setGraphLinkRepositoryPostgres(GraphLinkRepositoryPostgres graphLinkRepositoryPostgres) {
+        this.graphLinkRepositoryPostgres = graphLinkRepositoryPostgres;
+    }
+
+    @Autowired
+    public void setGraphLinkRepositoryNeo4j(GraphLinkRepositoryNeo4j graphLinkRepositoryNeo4j) {
+        this.graphLinkRepositoryNeo4j = graphLinkRepositoryNeo4j;
     }
 
     @Autowired
@@ -36,39 +47,64 @@ public class GraphLinkService {
         this.neoRepository = neoRepository;
     }
 
+    @Autowired
+    public void setMeasureService(MeasureService measureService) {
+        this.measureService = measureService;
+    }
+
     public void linkNodes(@Nullable final String childPk, @Nullable final String parentPk) {
-        if (childPk == null || parentPk == null) {
-            throw new IllegalArgumentException("Can not create graph link: null has been passed");
-        }
+//        if (childPk == null || parentPk == null) {
+//            throw new IllegalArgumentException("Can not create graph link: null has been passed");
+//        }
 
         createNeo4jGraphLink(childPk, parentPk);
         createPostgresGraphLink(childPk, parentPk);
     }
 
+    @Transactional
     public void createNeo4jGraphLink(@NotNull final String childPk, @NotNull final String parentPk) {
+        final UUID measureId = measureService.startMeasure(MeasureService.MeasureEvent.NEO_PERSIST);
+
         Node child = neoRepository.findOneByPk(childPk);
         Node parent = neoRepository.findOneByPk(parentPk);
+
+        checkIfAllowed(child, parent);
+
+        if (graphLinkRepositoryNeo4j.findRelationshipByNodesPk(childPk, parentPk) == null) {
+            graphLinkRepositoryNeo4j.save(new GraphLink(child, parent));
+        }
+
+        measureService.fixMeasure(MeasureService.MeasureEvent.NEO_PERSIST, measureId);
+    }
+
+    @Transactional
+    public void createPostgresGraphLink(@NotNull final String childPk, @NotNull final String parentPk) {
+        final UUID measureId = measureService.startMeasure(MeasureService.MeasureEvent.POSTGRES_PERSIST);
+
+        Node child = psRepository.findOne(childPk);
+        Node parent = psRepository.findOne(parentPk);
+
+        checkIfAllowed(child, parent);
+
+        if (graphLinkRepositoryPostgres.findLink(childPk, parentPk) == null) {
+            graphLinkRepositoryPostgres.save(new GraphLink(child, parent));
+        }
+
+        measureService.fixMeasure(MeasureService.MeasureEvent.POSTGRES_PERSIST, measureId);
+    }
+
+    private void checkIfAllowed(Node child, Node parent) {
         if (child == null) {
             throw new IllegalArgumentException("Can not create graph link: child does not exist");
         }
         if (parent == null) {
             throw new IllegalArgumentException("Can not create graph link: parent does not exist");
         }
-
-        child.setPartOf(parent);
-        neoRepository.save(child);
-    }
-
-    public void createPostgresGraphLink(@NotNull final String childPk, @NotNull final String parentPk) {
-        if (!psRepository.exists(childPk)) {
-            throw new IllegalArgumentException("Can not create graph link: child does not exist");
+        if (child.getType().equals("GROUP") && child.getPartOf() != null && child.getPartOf().size() > 0) {
+            throw new IllegalArgumentException("Group already linked to another node");
         }
-        if (!psRepository.exists(parentPk)) {
-            throw new IllegalArgumentException("Can not create graph link: parent does not exist");
-        }
-
-        if (graphLinkRepository.findByLeftNodePkAndRightNodePk(childPk, parentPk) == null) {
-            graphLinkRepository.save(new GraphLink(childPk, parentPk));
+        if (!parent.getType().equals("GROUP")) {
+            throw new IllegalArgumentException("Nodes can not be linked to non-group node");
         }
     }
 }
