@@ -6,7 +6,6 @@ import ru.sukhoa.DAO.Neo4j.NodeRepositoryNeo4j;
 import ru.sukhoa.DAO.Postgres.NodeRepositoryPostgres;
 import ru.sukhoa.domain.Node;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -50,6 +49,8 @@ public class NodeCreateService {
     }
 
     private void createNodePostgres(Node node) {
+        final UUID measureId = measureService.startMeasure(MeasureService.MeasureEvent.POSTGRES_PERSIST);
+
         if (!psRepository.exists(node.getPk())) {
             if (node.getPartOf() != null) {
                 // if node is not a group, it can has a several parents, so we will store it's parents with graph link
@@ -64,26 +65,26 @@ public class NodeCreateService {
             }
             psRepository.save(node);
         }
+
+        measureService.fixMeasure(MeasureService.MeasureEvent.POSTGRES_PERSIST, measureId);
     }
 
     private void createNodeNeo4j(Node node) {
         final UUID measureId = measureService.startMeasure(MeasureService.MeasureEvent.NEO_PERSIST);
 
-        try {
-            if (neoRepository.findOneByPk(node.getPk()) == null) {
-                Node parentNode = node.getPartOf();
-                if (parentNode != null) {
-                    Node existedParentNode = neoRepository.findOneByPk(parentNode.getPk());
-                    if (existedParentNode == null) {
-                        throw new IllegalArgumentException("Parent node which has benn specified does not exists yet");
-                    }
-                    node.setPartOf(existedParentNode);
+        if (neoRepository.findOneByPk(node.getPk()) == null) {
+            Node parentNode = node.getPartOf();
+            if (parentNode != null) {
+                Node existedParentNode = neoRepository.findOneByPk(parentNode.getPk());
+                if (existedParentNode == null) {
+                    throw new IllegalArgumentException("Parent node which has benn specified does not exists yet");
                 }
-                neoRepository.save(node);
+                node.setPartOf(existedParentNode);
             }
-        } finally {
-            measureService.fixMeasure(MeasureService.MeasureEvent.NEO_PERSIST, measureId);
+            neoRepository.save(node);
         }
+
+        measureService.fixMeasure(MeasureService.MeasureEvent.NEO_PERSIST, measureId);
     }
 
     public List<Node> getSubtreeInRootOf(String id) {

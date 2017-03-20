@@ -14,5 +14,11 @@ public interface NodeRepositoryNeo4j extends CrudRepository<Node, Long> {
 
     @Query(value = "MATCH (n:node {pk:{0}})-[:PART_OF*1..2]-(children) RETURN *;")
     List<Node> getSubtreeInRootOf(String id);
+
+    @Query("MATCH (n:node)-[r:PART_OF]->(an:node {pk:{0)}) RETURN n;")
+    List<Node> getChildOfNode(String id);
+
+//    @Query("MATCH (n:node {pk:{0)})-[r:PART_OF*]->(an:node) RETURN n, an;")
+//    List<Node> getPathToRoot(String id);
 }
 

@@ -8,6 +8,7 @@ import ru.sukhoa.domain.Node;
 import ru.sukhoa.service.GraphLinkService;
 import ru.sukhoa.service.MeasureService;
 import ru.sukhoa.service.NodeCreateService;
+import ru.sukhoa.service.NodeFetchService;
 
 import java.util.List;
 
@@ -17,6 +18,8 @@ public class NodeController {
 
     private NodeCreateService nodeCreateService;
 
+    private NodeFetchService nodeFetchService;
+
     private GraphLinkService graphLinkService;
 
     private MeasureService measureService;
@@ -24,6 +27,11 @@ public class NodeController {
     @Autowired
     public void setNodeCreateService(NodeCreateService nodeCreateService) {
         this.nodeCreateService = nodeCreateService;
+    }
+
+    @Autowired
+    public void setNodeFetchService(NodeFetchService nodeFetchService) {
+        this.nodeFetchService = nodeFetchService;
     }
 
     @Autowired
@@ -42,9 +50,14 @@ public class NodeController {
         nodeCreateService.createNodes(nodes);
     }
 
-    @RequestMapping(value = "/subtree", method = RequestMethod.GET)
-    public List<Node> getNodes(@RequestParam(name = "id", required = true) final String id) {
-        return nodeCreateService.getSubtreeInRootOf(id);
+    @RequestMapping(value = "/postgres/subtree", method = RequestMethod.GET)
+    public List<Node> getPostgresSubtreeInRootOf(@RequestParam(name = "id", required = true) final String id) {
+        return nodeFetchService.getPostgresSubtreeInRootOf(id);
+    }
+
+    @RequestMapping(value = "/neo/subtree", method = RequestMethod.GET)
+    public List<Node> getNeoSubtreeInRootOf(@RequestParam(name = "id", required = true) final String id) {
+        return nodeFetchService.getNeoSubtreeInRootOf(id);
     }
 
 //    @RequestMapping(value = "/node/{child_pk}/linked_to/{parent_pk}", method = RequestMethod.POST)
@@ -52,8 +65,4 @@ public class NodeController {
 //        graphLinkService.createPostgresGraphLink(childPk, parentPk);
 //    }
 
-    @RequestMapping(value = "/measure", method = RequestMethod.GET)
-    public Long measure() {
-        return measureService.getTotalTime(MeasureService.MeasureEvent.NEO_PERSIST);
-    }
 }

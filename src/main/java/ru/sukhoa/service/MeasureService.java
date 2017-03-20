@@ -2,6 +2,7 @@ package ru.sukhoa.service;
 
 import com.sun.istack.internal.Nullable;
 import org.springframework.stereotype.Service;
+import ru.sukhoa.domain.MeasureEntity;
 
 import java.util.Map;
 import java.util.UUID;
@@ -46,7 +47,11 @@ public class MeasureService {
         return measurer;
     }
 
+    public MeasureEntity getMeasureEntityByEvent(@Nullable MeasureEvent event) {
+        return new MeasureEntity(event, getNumberOfOperations(event), getTotalTime(event));
+    }
+
     public enum MeasureEvent {
-        POSTGRES_PERSIST, NEO_PERSIST
+        POSTGRES_PERSIST, NEO_PERSIST, NEO_SUBTREE_FETCH, POSTGRES_SUBTREE_FETCH
     }
 }
