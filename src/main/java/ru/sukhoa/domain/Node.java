@@ -21,8 +21,8 @@ public class Node {
 
     private String name;
 
-    //    @JsonProperty(value = "partOf")
     private Set<Node> partOf;
+
     private String type;
 
     @JsonIgnore
@@ -78,7 +78,7 @@ public class Node {
         this.name = name;
     }
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "graph_link",
             joinColumns = @JoinColumn(name = "left_node"),
@@ -100,6 +100,7 @@ public class Node {
         return attributes;
     }
 
+    @Relationship(type = "PART_OF", direction = Relationship.OUTGOING)
     public void setAttributes(Set<AssignedAttribute> attributes) {
         this.attributes = attributes;
     }

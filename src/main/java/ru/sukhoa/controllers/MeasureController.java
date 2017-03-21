@@ -37,4 +37,14 @@ public class MeasureController {
     public MeasureEntity measureNeoPersist() {
         return measureService.getMeasureEntityByEvent(MeasureService.MeasureEvent.NEO_PERSIST);
     }
+
+    @RequestMapping(value = "/descendant/postgres", method = RequestMethod.GET)
+    public MeasureEntity measurePostgresDescendant() {
+        return measureService.getMeasureEntityByEvent(MeasureService.MeasureEvent.POSTGRES_CHECK_DESCENDANT);
+    }
+
+    @RequestMapping(value = "/descendant/neo", method = RequestMethod.GET)
+    public MeasureEntity measureNeoDescendant() {
+        return measureService.getMeasureEntityByEvent(MeasureService.MeasureEvent.NEO_CHECK_DESCENDANT);
+    }
 }

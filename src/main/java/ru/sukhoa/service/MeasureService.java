@@ -52,6 +52,11 @@ public class MeasureService {
     }
 
     public enum MeasureEvent {
-        POSTGRES_PERSIST, NEO_PERSIST, NEO_SUBTREE_FETCH, POSTGRES_SUBTREE_FETCH
+        POSTGRES_PERSIST,
+        POSTGRES_SUBTREE_FETCH,
+        POSTGRES_CHECK_DESCENDANT,
+        NEO_PERSIST,
+        NEO_SUBTREE_FETCH,
+        NEO_CHECK_DESCENDANT
     }
 }

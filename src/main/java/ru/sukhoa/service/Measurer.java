@@ -38,8 +38,8 @@ public class Measurer {
         }
         measures.remove(measureId);
 
-        long measureDuration = currentTime = measureStartTime;
-        totalTime.compareAndSet(totalTime.get(), totalTime.get() + measureStartTime);
+        long measureDuration = currentTime - measureStartTime;
+        totalTime.compareAndSet(totalTime.get(), totalTime.get() + measureDuration);
         numOfOperations.incrementAndGet();
     }
 

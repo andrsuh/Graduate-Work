@@ -50,4 +50,20 @@ public class NodeFetchService {
 
         return subtree;
     }
+
+    public Boolean checkPostgresIsNodeADescendantOFAnother(String childId, String parentId) {
+        UUID measureId = measureService.startMeasure(MeasureService.MeasureEvent.POSTGRES_CHECK_DESCENDANT);
+        Boolean result = psRepository.isNodeDescendantOfAnother(childId, parentId);
+        measureService.fixMeasure(MeasureService.MeasureEvent.POSTGRES_CHECK_DESCENDANT, measureId);
+
+        return result;
+    }
+
+    public Boolean checkNeoIsNodeADescendantOFAnother(String childId, String parentId) {
+        UUID measureId = measureService.startMeasure(MeasureService.MeasureEvent.NEO_CHECK_DESCENDANT);
+        Boolean result = neoRepository.isNodeDescendantOfAnother(childId, parentId);
+        measureService.fixMeasure(MeasureService.MeasureEvent.NEO_CHECK_DESCENDANT, measureId);
+
+        return result;
+    }
 }

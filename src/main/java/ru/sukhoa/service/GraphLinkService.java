@@ -12,6 +12,7 @@ import ru.sukhoa.DAO.Postgres.NodeRepositoryPostgres;
 import ru.sukhoa.domain.GraphLink;
 import ru.sukhoa.domain.Node;
 
+import java.util.HashSet;
 import java.util.UUID;
 
 @Service
@@ -71,7 +72,11 @@ public class GraphLinkService {
         checkIfAllowed(child, parent);
 
         if (graphLinkRepositoryNeo4j.findRelationshipByNodesPk(childPk, parentPk) == null) {
-            graphLinkRepositoryNeo4j.save(new GraphLink(child, parent));
+            if (child.getPartOf() == null) {
+                child.setPartOf(new HashSet<>());
+            }
+            child.getPartOf().add(parent);
+            neoRepository.save(child);
         }
 
         measureService.fixMeasure(MeasureService.MeasureEvent.NEO_PERSIST, measureId);
