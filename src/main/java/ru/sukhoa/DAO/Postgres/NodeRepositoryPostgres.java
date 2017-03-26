@@ -3,12 +3,21 @@ package ru.sukhoa.DAO.Postgres;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
+import ru.sukhoa.DAO.NodeRepository;
 import ru.sukhoa.domain.Node;
 
 import java.util.List;
 
-@Repository
-public interface NodeRepositoryPostgres extends CrudRepository<Node, String> {
+@Repository(value = "NodeRepositoryPostgres")
+public interface NodeRepositoryPostgres extends CrudRepository<Node, String>, NodeRepository {
+    String DATASOURCE_NAME = "POSTGRES";
+
+    default String getDatasourceName() {
+        return DATASOURCE_NAME;
+    }
+
+    Node findOneByPk(String pk);
+
     @Query(value = "WITH RECURSIVE q AS\n" +
             "(SELECT *, 1 AS level FROM node n WHERE n.id = ?\n" +
             "    UNION ALL\n" +
@@ -32,4 +41,10 @@ public interface NodeRepositoryPostgres extends CrudRepository<Node, String> {
             "FROM q\n" +
             "WHERE q.id = ?;\n", nativeQuery = true)
     boolean isNodeDescendantOfAnother(String descendantPk, String ancestorPk);
+
+    @Query(value = "SELECT n.* FROM node n " +
+            "JOIN graph_link l ON n.id = l.left_node " +
+            "WHERE l.right_node = ?;\n", nativeQuery = true)
+    List<Node> getChildrenOfNode(String id);
+
 }
