@@ -1,6 +1,8 @@
 package ru.sukhoa.domain;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 
 @Entity
 @Table(name = "attribute_value")
