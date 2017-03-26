@@ -1,31 +1,37 @@
 package ru.sukhoa.service;
 
+import com.sun.istack.internal.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import ru.sukhoa.DAO.Neo4j.NodeRepositoryNeo4j;
-import ru.sukhoa.DAO.Postgres.NodeRepositoryPostgres;
+import ru.sukhoa.DAO.NodeRepository;
 import ru.sukhoa.domain.Node;
+import ru.sukhoa.service.MeasureService.MeasureEvent;
 
 import java.util.List;
 import java.util.UUID;
 
 @Service
-@org.springframework.transaction.annotation.Transactional(transactionManager = "postgresTransactionalManager")
 public class NodeFetchService {
 
-    private NodeRepositoryPostgres psRepository;
+    private static final String FIND_NODE = "_FIND_NODE";
+    private static final String SUBTREE_FETCH = "_SUBTREE_FETCH";
+    private static final String CHECK_DESCENDANT = "_CHECK_DESCENDANT";
+    private static final String GET_CHILDREN = "_GET_CHILDREN";
 
-    private NodeRepositoryNeo4j neoRepository;
+    private NodeRepository psRepository;
+
+    private NodeRepository neoRepository;
 
     private MeasureService measureService;
 
     @Autowired
-    public void setNeoRepository(NodeRepositoryNeo4j neoRepository) {
+    public void setNeoRepository(@Qualifier("NodeRepositoryNeo4j") NodeRepository neoRepository) {
         this.neoRepository = neoRepository;
     }
 
     @Autowired
-    public void setPsRepository(NodeRepositoryPostgres psRepository) {
+    public void setPsRepository(@Qualifier("NodeRepositoryPostgres") NodeRepository psRepository) {
         this.psRepository = psRepository;
     }
 
@@ -36,33 +42,69 @@ public class NodeFetchService {
 
 
     public List<Node> getPostgresSubtreeInRootOf(String id) {
-        UUID measureId = measureService.startMeasure(MeasureService.MeasureEvent.POSTGRES_SUBTREE_FETCH);
-        List<Node> subtree = psRepository.getSubtreeInRootOf(id);
-        measureService.fixMeasure(MeasureService.MeasureEvent.POSTGRES_SUBTREE_FETCH, measureId);
-
-        return subtree;
+        return getSubtreeInRootOf(psRepository, id);
     }
 
     public List<Node> getNeoSubtreeInRootOf(String id) {
-        UUID measureId = measureService.startMeasure(MeasureService.MeasureEvent.NEO_SUBTREE_FETCH);
-        List<Node> subtree = neoRepository.getSubtreeInRootOf(id);
-        measureService.fixMeasure(MeasureService.MeasureEvent.NEO_SUBTREE_FETCH, measureId);
+        return getSubtreeInRootOf(neoRepository, id);
+    }
+
+    public Boolean checkPostgresIsNodeADescendantOFAnother(String childId, String parentId) {
+        return checkIsNodeADescendantOFAnother(psRepository, childId, parentId);
+    }
+
+    public Boolean checkNeoIsNodeADescendantOFAnother(String childId, String parentId) {
+        return checkIsNodeADescendantOFAnother(neoRepository, childId, parentId);
+    }
+
+    public List<Node> getNeoChildrenOfNode(String id) {
+        return getChildrenOfNode(neoRepository, id);
+    }
+
+    public List<Node> getPostgresChildrenOfNode(String id) {
+        return getChildrenOfNode(psRepository, id);
+    }
+
+    public Node findNeoNodeById(String nodeId) {
+        return findNodeById(neoRepository, nodeId);
+    }
+
+    public Node findPostgresNodeById(String nodeId) {
+        return findNodeById(psRepository, nodeId);
+    }
+
+    private List<Node> getChildrenOfNode(@NotNull NodeRepository repository, String id) {
+        MeasureEvent event = MeasureEvent.valueOf(repository.getDatasourceName() + GET_CHILDREN);
+        UUID measureId = measureService.startMeasure(event);
+        List<Node> subtree = repository.getChildrenOfNode(id);
+        measureService.fixMeasure(event, measureId);
 
         return subtree;
     }
 
-    public Boolean checkPostgresIsNodeADescendantOFAnother(String childId, String parentId) {
-        UUID measureId = measureService.startMeasure(MeasureService.MeasureEvent.POSTGRES_CHECK_DESCENDANT);
-        Boolean result = psRepository.isNodeDescendantOfAnother(childId, parentId);
-        measureService.fixMeasure(MeasureService.MeasureEvent.POSTGRES_CHECK_DESCENDANT, measureId);
+    private List<Node> getSubtreeInRootOf(@NotNull NodeRepository repository, String id) {
+        MeasureEvent event = MeasureEvent.valueOf(repository.getDatasourceName() + SUBTREE_FETCH);
+        UUID measureId = measureService.startMeasure(event);
+        List<Node> subtree = repository.getSubtreeInRootOf(id);
+        measureService.fixMeasure(event, measureId);
+
+        return subtree;
+    }
+
+    private Boolean checkIsNodeADescendantOFAnother(@NotNull NodeRepository repository, String childId, String parentId) {
+        MeasureEvent event = MeasureEvent.valueOf(repository.getDatasourceName() + CHECK_DESCENDANT);
+        UUID measureId = measureService.startMeasure(event);
+        Boolean result = repository.isNodeDescendantOfAnother(childId, parentId);
+        measureService.fixMeasure(event, measureId);
 
         return result;
     }
 
-    public Boolean checkNeoIsNodeADescendantOFAnother(String childId, String parentId) {
-        UUID measureId = measureService.startMeasure(MeasureService.MeasureEvent.NEO_CHECK_DESCENDANT);
-        Boolean result = neoRepository.isNodeDescendantOfAnother(childId, parentId);
-        measureService.fixMeasure(MeasureService.MeasureEvent.NEO_CHECK_DESCENDANT, measureId);
+    private Node findNodeById(@NotNull NodeRepository repository, String nodeId) {
+        MeasureEvent event = MeasureEvent.valueOf(repository.getDatasourceName() + FIND_NODE);
+        UUID measureId = measureService.startMeasure(event);
+        Node result = repository.findOneByPk(nodeId);
+        measureService.fixMeasure(event, measureId);
 
         return result;
     }
