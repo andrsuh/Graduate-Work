@@ -4,9 +4,12 @@ import com.sun.istack.internal.Nullable;
 import org.springframework.stereotype.Service;
 import ru.sukhoa.domain.MeasureEntity;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 @Service
 public class MeasureService {
@@ -51,12 +54,22 @@ public class MeasureService {
         return new MeasureEntity(event, getNumberOfOperations(event), getTotalTime(event));
     }
 
+    public List<MeasureEntity> getAllStatistics() {
+        return Arrays.stream(MeasureEvent.values())
+                .map(event -> new MeasureEntity(event, getNumberOfOperations(event), getTotalTime(event)))
+                .collect(Collectors.toList());
+    }
+
     public enum MeasureEvent {
         POSTGRES_PERSIST,
         POSTGRES_SUBTREE_FETCH,
         POSTGRES_CHECK_DESCENDANT,
+        POSTGRES_FIND_NODE,
+        POSTGRES_GET_CHILDREN,
         NEO_PERSIST,
         NEO_SUBTREE_FETCH,
-        NEO_CHECK_DESCENDANT
+        NEO_CHECK_DESCENDANT,
+        NEO_FIND_NODE,
+        NEO_GET_CHILDREN
     }
 }

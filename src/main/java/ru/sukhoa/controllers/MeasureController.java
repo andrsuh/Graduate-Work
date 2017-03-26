@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.sukhoa.domain.MeasureEntity;
 import ru.sukhoa.service.MeasureService;
 
+import java.util.List;
+
 @RestController()
 @RequestMapping("/measure")
 public class MeasureController {
@@ -47,4 +49,20 @@ public class MeasureController {
     public MeasureEntity measureNeoDescendant() {
         return measureService.getMeasureEntityByEvent(MeasureService.MeasureEvent.NEO_CHECK_DESCENDANT);
     }
+
+    @RequestMapping(value = "/find/neo", method = RequestMethod.GET)
+    public MeasureEntity measureNeoSearch() {
+        return measureService.getMeasureEntityByEvent(MeasureService.MeasureEvent.NEO_FIND_NODE);
+    }
+
+    @RequestMapping(value = "/find/postgres", method = RequestMethod.GET)
+    public MeasureEntity measureNeoPostgres() {
+        return measureService.getMeasureEntityByEvent(MeasureService.MeasureEvent.POSTGRES_FIND_NODE);
+    }
+
+    @RequestMapping(value = "/all", method = RequestMethod.GET)
+    public List<MeasureEntity> measureAll() {
+        return measureService.getAllStatistics();
+    }
+
 }
