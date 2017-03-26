@@ -17,10 +17,12 @@ public class Node {
 
     private String pk = UUID.randomUUID().toString();
 
+    @JsonIgnore
     private Long id;
 
     private String name;
 
+    @JsonIgnore
     private Set<Node> partOf;
 
     private String type;
