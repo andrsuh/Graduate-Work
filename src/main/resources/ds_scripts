@@ -39,7 +39,7 @@ create table graph_link (
 
  -- fetch subtree in root of
 WITH RECURSIVE q AS
-(SELECT *, 1 AS level FROM node n WHERE n.id = '4fe252f3-ccf4-47ae-bdc8-a99b2956aad1'
+(SELECT *, 1 AS level FROM node n WHERE n.id = '897bec36-62ec-4b94-8fc6-a6254200bdba'
     UNION ALL
   SELECT n.*, 1 + level AS level FROM graph_link l
   JOIN q ON l.right_node = q.id
