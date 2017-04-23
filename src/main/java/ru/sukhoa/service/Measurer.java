@@ -41,7 +41,7 @@ public class Measurer {
         long measureDuration = currentTime - measureStartTime;
 
         long currentTotalTime = totalTime.get();
-        while (!totalTime.compareAndSet(currentTime, currentTime + measureDuration)) {
+        while (!totalTime.compareAndSet(currentTotalTime, currentTotalTime + measureDuration)) {
             currentTotalTime = totalTime.get();
         }
         numOfOperations.incrementAndGet();
