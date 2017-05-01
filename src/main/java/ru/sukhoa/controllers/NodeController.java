@@ -1,28 +1,38 @@
 package ru.sukhoa.controllers;
 
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.sukhoa.domain.Node;
-import ru.sukhoa.service.NodeCreateService;
+import ru.sukhoa.service.NodeService;
 
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
 public class NodeController {
-    final static Logger logger = Logger.getLogger(NodeController.class);
-
-    private NodeCreateService nodeCreateService;
+    private NodeService nodeService;
 
     @Autowired
-    public void setNodeCreateService(NodeCreateService nodeCreateService) {
-        this.nodeCreateService = nodeCreateService;
+    public void setNodeService(NodeService nodeService) {
+        this.nodeService = nodeService;
     }
 
     @ResponseStatus(HttpStatus.OK)
-    @RequestMapping(value = "/node", method = RequestMethod.POST)
-    public void createNodes(@RequestBody(required = true) final List<Node> nodes) {
-        nodeCreateService.createNodes(nodes);
+    @RequestMapping(value = "/create_nodes", method = RequestMethod.POST)
+    public void createNodes(@RequestBody final List<Node> nodes) {
+        nodeService.createNodes(nodes);
+    }
+
+    @ResponseStatus(HttpStatus.OK)
+    @RequestMapping(value = "/create_node", method = RequestMethod.POST)
+    public void createNodes(@RequestBody Node node) {
+        nodeService.createNodes(Arrays.asList(node));
+    }
+
+    @ResponseStatus(HttpStatus.OK)
+    @RequestMapping(value = "/update_node", method = RequestMethod.PUT)
+    public void updateNode(@RequestBody Node updatingNode) {
+        nodeService.updateNode(updatingNode);
     }
 }
