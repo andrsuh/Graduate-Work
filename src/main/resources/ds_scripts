@@ -11,6 +11,14 @@ create table node (
 --     part_of VARCHAR(40) references node(id)
 );
 
+create table measures (
+    id UUID primary key,
+    event text,
+    times integer,
+    total_time integer,
+    time timestamp
+)
+
 create table attribute_value (
     id VARCHAR(40) primary key,
     boolean_attr_value boolean
@@ -25,7 +33,7 @@ create table assign_attribute (
 create table graph_link (
     id VARCHAR(40) PRIMARY KEY,
     left_node VARCHAR(40),
-    right_node VARCHAR(40) ,
+    right_node VARCHAR(40),
     CONSTRAINT graph_link_fkey1 FOREIGN KEY (left_node)
         REFERENCES node (id)
         ON UPDATE NO ACTION
