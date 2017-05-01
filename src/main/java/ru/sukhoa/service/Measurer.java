@@ -1,8 +1,6 @@
 package ru.sukhoa.service;
 
-
-import com.sun.istack.internal.Nullable;
-
+import javax.annotation.Nullable;
 import java.util.Calendar;
 import java.util.Map;
 import java.util.UUID;

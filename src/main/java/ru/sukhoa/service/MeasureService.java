@@ -1,24 +1,30 @@
 package ru.sukhoa.service;
 
-import com.sun.istack.internal.Nullable;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import ru.sukhoa.DAO.Postgres.MeasuresRepository;
 import ru.sukhoa.domain.MeasureEntity;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import javax.annotation.Nullable;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 @Service
 public class MeasureService {
+    private MeasuresRepository repository;
     private Map<MeasureEvent, Measurer> measurers = new ConcurrentHashMap<>();
 
     public MeasureService() {
         for (MeasureEvent event : MeasureEvent.values()) {
             measurers.put(event, new Measurer());
         }
+    }
+
+    @Autowired
+    public void setRepository(MeasuresRepository repository) {
+        this.repository = repository;
     }
 
     public UUID startMeasure(@Nullable MeasureEvent event) {
@@ -51,12 +57,20 @@ public class MeasureService {
     }
 
     public MeasureEntity getMeasureEntityByEvent(@Nullable MeasureEvent event) {
-        return new MeasureEntity(event, getNumberOfOperations(event), getTotalTime(event));
+        return new MeasureEntity(event, getNumberOfOperations(event), getTotalTime(event), null);
+    }
+
+    @Scheduled(fixedDelayString = "${measureFrequency}")
+    private void persistMeasures() {
+        Date current = Calendar.getInstance().getTime();
+        Arrays.stream(MeasureEvent.values())
+                .map(event -> new MeasureEntity(event, getNumberOfOperations(event), getTotalTime(event), current))
+                .forEach(repository::save);
     }
 
     public List<MeasureEntity> getAllStatistics() {
         return Arrays.stream(MeasureEvent.values())
-                .map(event -> new MeasureEntity(event, getNumberOfOperations(event), getTotalTime(event)))
+                .map(event -> new MeasureEntity(event, getNumberOfOperations(event), getTotalTime(event), null))
                 .collect(Collectors.toList());
     }
 
@@ -66,10 +80,12 @@ public class MeasureService {
         POSTGRES_CHECK_DESCENDANT,
         POSTGRES_FIND_NODE,
         POSTGRES_GET_CHILDREN,
+        POSTGRES_UPDATE,
         NEO_PERSIST,
         NEO_SUBTREE_FETCH,
         NEO_CHECK_DESCENDANT,
         NEO_FIND_NODE,
-        NEO_GET_CHILDREN
+        NEO_GET_CHILDREN,
+        NEO_UPDATE
     }
 }
