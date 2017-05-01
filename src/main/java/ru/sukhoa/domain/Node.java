@@ -22,7 +22,6 @@ public class Node {
 
     private String name;
 
-    @JsonIgnore
     private Set<Node> partOf;
 
     private String type;

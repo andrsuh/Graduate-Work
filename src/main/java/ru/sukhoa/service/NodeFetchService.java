@@ -1,6 +1,5 @@
 package ru.sukhoa.service;
 
-import com.sun.istack.internal.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -8,6 +7,7 @@ import ru.sukhoa.DAO.NodeRepository;
 import ru.sukhoa.domain.Node;
 import ru.sukhoa.service.MeasureService.MeasureEvent;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.UUID;
 
@@ -73,7 +73,7 @@ public class NodeFetchService {
         return findNodeById(psRepository, nodeId);
     }
 
-    private List<Node> getChildrenOfNode(@NotNull NodeRepository repository, String id) {
+    private List<Node> getChildrenOfNode(@Nonnull NodeRepository repository, String id) {
         MeasureEvent event = MeasureEvent.valueOf(repository.getDatasourceName() + GET_CHILDREN);
         UUID measureId = measureService.startMeasure(event);
         List<Node> subtree = repository.getChildrenOfNode(id);
@@ -82,7 +82,7 @@ public class NodeFetchService {
         return subtree;
     }
 
-    private List<Node> getSubtreeInRootOf(@NotNull NodeRepository repository, String id) {
+    private List<Node> getSubtreeInRootOf(@Nonnull NodeRepository repository, String id) {
         MeasureEvent event = MeasureEvent.valueOf(repository.getDatasourceName() + SUBTREE_FETCH);
         UUID measureId = measureService.startMeasure(event);
         List<Node> subtree = repository.getSubtreeInRootOf(id);
@@ -91,7 +91,7 @@ public class NodeFetchService {
         return subtree;
     }
 
-    private Boolean checkIsNodeADescendantOFAnother(@NotNull NodeRepository repository, String childId, String parentId) {
+    private Boolean checkIsNodeADescendantOFAnother(@Nonnull NodeRepository repository, String childId, String parentId) {
         MeasureEvent event = MeasureEvent.valueOf(repository.getDatasourceName() + CHECK_DESCENDANT);
         UUID measureId = measureService.startMeasure(event);
         Boolean result = repository.isNodeDescendantOfAnother(childId, parentId);
@@ -100,7 +100,7 @@ public class NodeFetchService {
         return result;
     }
 
-    private Node findNodeById(@NotNull NodeRepository repository, String nodeId) {
+    private Node findNodeById(@Nonnull NodeRepository repository, String nodeId) {
         MeasureEvent event = MeasureEvent.valueOf(repository.getDatasourceName() + FIND_NODE);
         UUID measureId = measureService.startMeasure(event);
         Node result = repository.findOneByPk(nodeId);
