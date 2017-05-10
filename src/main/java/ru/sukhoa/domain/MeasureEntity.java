@@ -1,5 +1,6 @@
 package ru.sukhoa.domain;
 
+import org.neo4j.ogm.annotation.*;
 import ru.sukhoa.service.MeasureService;
 
 import javax.persistence.*;
@@ -8,6 +9,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "measures")
+@org.neo4j.ogm.annotation.Transient
 public class MeasureEntity {
     private UUID id = UUID.randomUUID();
 

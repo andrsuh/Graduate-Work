@@ -26,14 +26,14 @@ public class Node {
 
     private String type;
 
-    @JsonIgnore
-    private Set<AssignedAttribute> attributes;
+//    @JsonIgnore
+//    private Set<AssignedAttribute> attributes;
 
-    public Node(String name, Set<Node> partOf, Set<AssignedAttribute> attributes) {
-        this.name = name;
-        this.partOf = partOf;
-        this.attributes = attributes;
-    }
+//    public Node(String name, Set<Node> partOf, Set<AssignedAttribute> attributes) {
+//        this.name = name;
+//        this.partOf = partOf;
+//        this.attributes = attributes;
+//    }
 
     public Node() {
     }
@@ -94,15 +94,32 @@ public class Node {
         this.partOf = partOf;
     }
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name = "node_id", referencedColumnName = "id")
-    @Relationship(type = "MARKED_AS", direction = Relationship.OUTGOING)
-    public Set<AssignedAttribute> getAttributes() {
-        return attributes;
+//    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+//    @JoinColumn(name = "node_id", referencedColumnName = "id")
+//    @Relationship(type = "MARKED_AS", direction = Relationship.OUTGOING)
+//    public Set<AssignedAttribute> getAttributes() {
+//        return attributes;
+//    }
+
+//    @Relationship(type = "PART_OF", direction = Relationship.OUTGOING)
+//    public void setAttributes(Set<AssignedAttribute> attributes) {
+//        this.attributes = attributes;
+//    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Node node = (Node) o;
+
+        if (!pk.equals(node.pk)) return false;
+
+        return true;
     }
 
-    @Relationship(type = "PART_OF", direction = Relationship.OUTGOING)
-    public void setAttributes(Set<AssignedAttribute> attributes) {
-        this.attributes = attributes;
+    @Override
+    public int hashCode() {
+        return pk.hashCode();
     }
 }

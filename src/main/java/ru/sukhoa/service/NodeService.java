@@ -43,8 +43,8 @@ public class NodeService {
 
     public void createNodes(List<Node> nodes) {
         nodes.forEach(node -> {
-            createNodePostgres(node);
             createNodeNeo4j(node);
+            createNodePostgres(node);
         });
     }
 

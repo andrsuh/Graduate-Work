@@ -46,5 +46,4 @@ public interface NodeRepositoryPostgres extends CrudRepository<Node, String>, No
             "JOIN graph_link l ON n.id = l.left_node " +
             "WHERE l.right_node = ?;\n", nativeQuery = true)
     List<Node> getChildrenOfNode(String id);
-
 }

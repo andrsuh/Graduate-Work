@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-@SpringBootApplication()
+@SpringBootApplication
 @EntityScan("ru.sukhoa.domain")
 @EnableScheduling
 public class Application {

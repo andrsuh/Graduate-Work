@@ -4,11 +4,13 @@ package ru.sukhoa.DAO.Neo4j;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import ru.sukhoa.DAO.NodeRepository;
 import ru.sukhoa.domain.Node;
 
 import java.util.List;
 
+@Transactional
 @Repository(value = "NodeRepositoryNeo4j")
 public interface NodeRepositoryNeo4j extends CrudRepository<Node, Long>, NodeRepository {
 
@@ -18,7 +20,6 @@ public interface NodeRepositoryNeo4j extends CrudRepository<Node, Long>, NodeRep
         return DATASOURCE_NAME;
     }
 
-    @Query("MATCH (n:node {pk:{0}}) RETURN n;")
     Node findOneByPk(String pk);
 
     @Query("MATCH (n:node {pk:{0}}) " +

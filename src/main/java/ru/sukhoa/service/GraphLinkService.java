@@ -58,7 +58,7 @@ public class GraphLinkService {
             throw new IllegalArgumentException("Can not create graph link: null has been passed");
         }
 
-//        createNeo4jGraphLink(childPk, parentPk);
+        createNeo4jGraphLink(childPk, parentPk);
         createPostgresGraphLink(childPk, parentPk);
     }
 
@@ -71,7 +71,7 @@ public class GraphLinkService {
 
         checkIfLinkingAllowed(child, parent);
 
-        if (graphLinkRepositoryNeo4j.findRelationshipByNodesPk(childPk, parentPk) == null) {
+        if (child.getPartOf() == null || !child.getPartOf().contains(parent)) {
             if (child.getPartOf() == null) {
                 child.setPartOf(new HashSet<>());
             }
@@ -105,7 +105,7 @@ public class GraphLinkService {
         if (parent == null) {
             throw new IllegalArgumentException("Can not create graph link: parent does not exist");
         }
-        if (child.getType().equals("GROUP") && child.getPartOf() != null && child.getPartOf().size() > 0) {
+        if (child.getType().equals("GROUP") && child.getPartOf() != null && !child.getPartOf().isEmpty()) {
             throw new IllegalArgumentException("Group already linked to another node");
         }
         if (!parent.getType().equals("GROUP")) {
