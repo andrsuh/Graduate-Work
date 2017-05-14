@@ -1,15 +1,18 @@
 package ru.sukhoa.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.sukhoa.domain.MeasureEntity;
 import ru.sukhoa.service.MeasureService;
 
+import java.util.Date;
 import java.util.List;
 
-@RestController()
+@RestController
 @RequestMapping("/measure")
 public class MeasureController {
 
@@ -20,49 +23,34 @@ public class MeasureController {
         this.measureService = measureService;
     }
 
-    @RequestMapping(value = "/subtree/postgres", method = RequestMethod.GET)
-    public MeasureEntity measurePostgresSubtreeFetching() {
-        return measureService.getMeasureEntityByEvent(MeasureService.MeasureEvent.POSTGRES_SUBTREE_FETCH);
+    @RequestMapping(value = "/last", method = RequestMethod.GET)
+    public MeasureEntity getLastMeasureByEventName(@RequestParam(required = true) String eventName) {
+        return measureService.getLastMeasureEntityByEventName(eventName);
     }
 
-    @RequestMapping(value = "/subtree/neo", method = RequestMethod.GET)
-    public MeasureEntity measureNeoSubtreeFetching() {
-        return measureService.getMeasureEntityByEvent(MeasureService.MeasureEvent.NEO_SUBTREE_FETCH);
+    @RequestMapping(method = RequestMethod.GET)
+    public List<MeasureEntity> getMeasuresByEventNameInRange(
+            @RequestParam String eventName,
+            @RequestParam(value = "from_date", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date fromDate,
+            @RequestParam(value = "to_date", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date toDate) {
+        return measureService.getMeasuresByEventNameInRange(eventName, fromDate, toDate);
     }
 
-    @RequestMapping(value = "/persist/postgres", method = RequestMethod.GET)
-    public MeasureEntity measurePostgresPersist() {
-        return measureService.getMeasureEntityByEvent(MeasureService.MeasureEvent.POSTGRES_PERSIST);
-    }
-
-    @RequestMapping(value = "/persist/neo", method = RequestMethod.GET)
-    public MeasureEntity measureNeoPersist() {
-        return measureService.getMeasureEntityByEvent(MeasureService.MeasureEvent.NEO_PERSIST);
-    }
-
-    @RequestMapping(value = "/descendant/postgres", method = RequestMethod.GET)
-    public MeasureEntity measurePostgresDescendant() {
-        return measureService.getMeasureEntityByEvent(MeasureService.MeasureEvent.POSTGRES_CHECK_DESCENDANT);
-    }
-
-    @RequestMapping(value = "/descendant/neo", method = RequestMethod.GET)
-    public MeasureEntity measureNeoDescendant() {
-        return measureService.getMeasureEntityByEvent(MeasureService.MeasureEvent.NEO_CHECK_DESCENDANT);
-    }
-
-    @RequestMapping(value = "/find/neo", method = RequestMethod.GET)
-    public MeasureEntity measureNeoSearch() {
-        return measureService.getMeasureEntityByEvent(MeasureService.MeasureEvent.NEO_FIND_NODE);
-    }
-
-    @RequestMapping(value = "/find/postgres", method = RequestMethod.GET)
-    public MeasureEntity measureNeoPostgres() {
-        return measureService.getMeasureEntityByEvent(MeasureService.MeasureEvent.POSTGRES_FIND_NODE);
+    @RequestMapping(value = "/events", method = RequestMethod.GET)
+    public List<String> getAllEventsNames() {
+        return measureService.getAllEventsNames();
     }
 
     @RequestMapping(value = "/all", method = RequestMethod.GET)
-    public List<MeasureEntity> measureAll() {
-        return measureService.getAllStatistics();
+    public List<MeasureEntity> getAllMeasuresInRange(
+            @RequestParam(value = "from_date", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date fromDate,
+            @RequestParam(value = "to_date", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date toDate) {
+        return measureService.getAllMeasuresInRange(fromDate, toDate);
+    }
+
+    @RequestMapping(value = "/alllast", method = RequestMethod.GET)
+    public List<MeasureEntity> getAllLastMeasures() {
+        return measureService.getAllLastMeasures();
     }
 
 }

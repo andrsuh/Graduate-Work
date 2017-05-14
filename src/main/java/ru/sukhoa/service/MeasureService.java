@@ -16,15 +16,12 @@ public class MeasureService {
     private MeasuresRepository repository;
     private Map<MeasureEvent, Measurer> measurers = new ConcurrentHashMap<>();
 
-    public MeasureService() {
+    @Autowired
+    public MeasureService(MeasuresRepository repository) {
+        this.repository = repository;
         for (MeasureEvent event : MeasureEvent.values()) {
             measurers.put(event, new Measurer());
         }
-    }
-
-    @Autowired
-    public void setRepository(MeasuresRepository repository) {
-        this.repository = repository;
     }
 
     public UUID startMeasure(@Nullable MeasureEvent event) {
@@ -56,8 +53,9 @@ public class MeasureService {
         return measurer;
     }
 
-    public MeasureEntity getMeasureEntityByEvent(@Nullable MeasureEvent event) {
-        return new MeasureEntity(event, getNumberOfOperations(event), getTotalTime(event), null);
+    public MeasureEntity getLastMeasureEntityByEventName(String eventName) {
+        MeasureEvent event = MeasureEvent.valueOf(eventName);
+        return repository.getLastEntityByEventName(event.name());
     }
 
     @Scheduled(fixedDelayString = "${measureFrequency}")
@@ -68,10 +66,41 @@ public class MeasureService {
                 .forEach(repository::save);
     }
 
-    public List<MeasureEntity> getAllStatistics() {
+    public List<MeasureEntity> getAllMeasuresInRange(Date fromDate, Date toDate) {
+        if (fromDate == null && toDate == null) {
+            List<MeasureEntity> entities = new ArrayList<>();
+            repository.findAll().forEach(entities::add);
+            return entities;
+        } else if (fromDate == null) {
+            return repository.findByTimestampLessThan(toDate);
+        } else if (toDate == null) {
+            return repository.findByTimestampGreaterThanEqual(fromDate);
+        }
+
+        return repository.findByTimestampBetween(fromDate, toDate);
+    }
+
+    public List<String> getAllEventsNames() {
         return Arrays.stream(MeasureEvent.values())
-                .map(event -> new MeasureEntity(event, getNumberOfOperations(event), getTotalTime(event), null))
+                .map(MeasureEvent::toString)
                 .collect(Collectors.toList());
+    }
+
+    public List<MeasureEntity> getMeasuresByEventNameInRange(String eventName, @Nullable Date fromDate, @Nullable Date toDate) {
+        MeasureEvent event = MeasureEvent.valueOf(eventName);
+        if (fromDate == null && toDate == null) {
+            return repository.findByEvent(event);
+        } else if (fromDate == null) {
+            return repository.findByEventAndTimestampLessThan(event, toDate);
+        } else if (toDate == null) {
+            return repository.findByEventAndTimestampGreaterThanEqual(event, fromDate);
+        }
+
+        return repository.findByEventAndTimestampBetween(event, fromDate, toDate);
+    }
+
+    public List<MeasureEntity> getAllLastMeasures() {
+        return repository.getLastEntities();
     }
 
     public enum MeasureEvent {
