@@ -53,11 +53,7 @@ public class GraphLinkService {
         this.measureService = measureService;
     }
 
-    public void linkNodes(@Nullable final String childPk, @Nullable final String parentPk) {
-        if (childPk == null || parentPk == null) {
-            throw new IllegalArgumentException("Can not create graph link: null has been passed");
-        }
-
+    public void linkNodes(@Nonnull final String childPk, @Nonnull final String parentPk) {
         createNeo4jGraphLink(childPk, parentPk);
         createPostgresGraphLink(childPk, parentPk);
     }

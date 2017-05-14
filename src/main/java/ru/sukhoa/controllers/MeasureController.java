@@ -13,7 +13,7 @@ import java.util.Date;
 import java.util.List;
 
 @RestController
-@RequestMapping("/measure")
+@RequestMapping("/measures")
 public class MeasureController {
 
     private MeasureService measureService;
@@ -30,7 +30,7 @@ public class MeasureController {
 
     @RequestMapping(method = RequestMethod.GET)
     public List<MeasureEntity> getMeasuresByEventNameInRange(
-            @RequestParam String eventName,
+            @RequestParam(value = "event_name") String eventName,
             @RequestParam(value = "from_date", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date fromDate,
             @RequestParam(value = "to_date", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") Date toDate) {
         return measureService.getMeasuresByEventNameInRange(eventName, fromDate, toDate);

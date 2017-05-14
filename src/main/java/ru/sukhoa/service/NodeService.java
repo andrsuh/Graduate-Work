@@ -2,6 +2,7 @@ package ru.sukhoa.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.sukhoa.DAO.Neo4j.NodeRepositoryNeo4j;
 import ru.sukhoa.DAO.Postgres.NodeRepositoryPostgres;
 import ru.sukhoa.domain.Node;
@@ -62,7 +63,7 @@ public class NodeService {
     }
 
     // todo remove redundant code
-    private void updateNodePostgres(Node updatingNode) {
+    public void updateNodePostgres(Node updatingNode) {
         final UUID measureId = measureService.startMeasure(MeasureService.MeasureEvent.POSTGRES_UPDATE);
 
         Node existingNode = psRepository.findOneByPk(updatingNode.getPk());
@@ -85,7 +86,7 @@ public class NodeService {
         measureService.fixMeasure(MeasureService.MeasureEvent.POSTGRES_UPDATE, measureId);
     }
 
-    private void updateNodeNeo4j(Node updatingNode) {
+    public void updateNodeNeo4j(Node updatingNode) {
         final UUID measureId = measureService.startMeasure(MeasureService.MeasureEvent.NEO_UPDATE);
 
         Node existingNode = neoRepository.findOneByPk(updatingNode.getPk());
@@ -110,8 +111,8 @@ public class NodeService {
         measureService.fixMeasure(MeasureService.MeasureEvent.NEO_UPDATE, measureId);
     }
 
-    @org.springframework.transaction.annotation.Transactional(transactionManager = "postgresTransactionalManager")
-    private void createNodePostgres(Node node) {
+    @Transactional
+    public void createNodePostgres(Node node) {
         final UUID measureId = measureService.startMeasure(MeasureService.MeasureEvent.POSTGRES_PERSIST);
 
         if (!psRepository.exists(node.getPk())) {
@@ -121,7 +122,8 @@ public class NodeService {
         measureService.fixMeasure(MeasureService.MeasureEvent.POSTGRES_PERSIST, measureId);
     }
 
-    private void createNodeNeo4j(Node node) {
+    @Transactional
+    public void createNodeNeo4j(Node node) {
         final UUID measureId = measureService.startMeasure(MeasureService.MeasureEvent.NEO_PERSIST);
 
         if (!neoRepository.exists(node.getPk())) {

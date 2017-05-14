@@ -6,10 +6,10 @@ import org.springframework.web.bind.annotation.*;
 import ru.sukhoa.domain.Node;
 import ru.sukhoa.service.NodeService;
 
-import java.util.Arrays;
 import java.util.List;
 
 @RestController
+@RequestMapping("/nodes")
 public class NodeController {
     private NodeService nodeService;
 
@@ -19,20 +19,39 @@ public class NodeController {
     }
 
     @ResponseStatus(HttpStatus.OK)
-    @RequestMapping(value = "/create_nodes", method = RequestMethod.POST)
+    @RequestMapping(method = RequestMethod.POST)
     public void createNodes(@RequestBody final List<Node> nodes) {
         nodeService.createNodes(nodes);
     }
 
     @ResponseStatus(HttpStatus.OK)
-    @RequestMapping(value = "/create_node", method = RequestMethod.POST)
-    public void createNodes(@RequestBody Node node) {
-        nodeService.createNodes(Arrays.asList(node));
+    @RequestMapping(value = "postgres", method = RequestMethod.POST)
+    public void createNodesPostgres(@RequestBody final List<Node> nodes) {
+        nodes.forEach(nodeService::createNodePostgres);
     }
 
     @ResponseStatus(HttpStatus.OK)
-    @RequestMapping(value = "/update_node", method = RequestMethod.PUT)
+    @RequestMapping(value = "neo", method = RequestMethod.POST)
+    public void createNodesNeo(@RequestBody final List<Node> nodes) {
+        nodes.forEach(nodeService::createNodeNeo4j);
+    }
+
+    @ResponseStatus(HttpStatus.OK)
+    @RequestMapping(method = RequestMethod.PUT)
     public void updateNode(@RequestBody Node updatingNode) {
         nodeService.updateNode(updatingNode);
+    }
+
+
+    @ResponseStatus(HttpStatus.OK)
+    @RequestMapping(value = "postgres", method = RequestMethod.PUT)
+    public void updateNodePostgres(@RequestBody Node updatingNode) {
+        nodeService.updateNodePostgres(updatingNode);
+    }
+
+    @ResponseStatus(HttpStatus.OK)
+    @RequestMapping(value = "neo", method = RequestMethod.PUT)
+    public void updateNodeNeo(@RequestBody Node updatingNode) {
+        nodeService.updateNodeNeo4j(updatingNode);
     }
 }
