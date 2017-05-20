@@ -1,6 +1,7 @@
 package ru.sukhoa.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import ru.sukhoa.DAO.Postgres.MeasuresRepository;
@@ -17,8 +18,13 @@ public class MeasureService {
     private Map<MeasureEvent, Measurer> measurers = new ConcurrentHashMap<>();
 
     @Autowired
-    public MeasureService(MeasuresRepository repository) {
+    public MeasureService(MeasuresRepository repository, @Value("${cleanMeasures}") boolean cleanMeasures) {
         this.repository = repository;
+
+        if (cleanMeasures) {
+            repository.deleteAll();
+        }
+
         for (MeasureEvent event : MeasureEvent.values()) {
             measurers.put(event, new Measurer());
         }
