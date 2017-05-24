@@ -108,4 +108,9 @@ public class GraphLinkService {
             throw new IllegalArgumentException("Nodes can not be linked to non-group node");
         }
     }
+
+    public void removeAllLinks() {
+        graphLinkRepositoryNeo4j.deleteAll();
+        graphLinkRepositoryPostgres.deleteAll();
+    }
 }
