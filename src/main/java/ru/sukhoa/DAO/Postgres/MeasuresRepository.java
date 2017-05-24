@@ -3,6 +3,7 @@ package ru.sukhoa.DAO.Postgres;
 
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.transaction.annotation.Transactional;
 import ru.sukhoa.domain.MeasureEntity;
 import ru.sukhoa.service.MeasureService;
 
@@ -10,6 +11,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+@Transactional
 public interface MeasuresRepository extends CrudRepository<MeasureEntity, UUID> {
     @Query(value = "select * from measures where time = (select max(time) from measures) and event = ?;", nativeQuery = true)
     MeasureEntity getLastEntityByEventName(String eventName);
