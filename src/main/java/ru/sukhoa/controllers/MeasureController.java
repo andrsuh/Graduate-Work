@@ -24,7 +24,7 @@ public class MeasureController {
     }
 
     @RequestMapping(value = "/last", method = RequestMethod.GET)
-    public MeasureEntity getLastMeasureByEventName(@RequestParam(required = true) String eventName) {
+    public MeasureEntity getLastMeasureByEventName(@RequestParam String eventName) {
         return measureService.getLastMeasureEntityByEventName(eventName);
     }
 
