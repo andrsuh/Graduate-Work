@@ -111,7 +111,7 @@ public class NodeService {
         measureService.fixMeasure(MeasureService.MeasureEvent.NEO_UPDATE, measureId);
     }
 
-    @Transactional
+    @Transactional(transactionManager = "postgresTransactionalManager")
     public void createNodePostgres(Node node) {
         final UUID measureId = measureService.startMeasure(MeasureService.MeasureEvent.POSTGRES_PERSIST);
 
@@ -122,7 +122,7 @@ public class NodeService {
         measureService.fixMeasure(MeasureService.MeasureEvent.POSTGRES_PERSIST, measureId);
     }
 
-    @Transactional
+    @Transactional(transactionManager = "neoTransactionalManager")
     public void createNodeNeo4j(Node node) {
         final UUID measureId = measureService.startMeasure(MeasureService.MeasureEvent.NEO_PERSIST);
 
@@ -133,7 +133,8 @@ public class NodeService {
         measureService.fixMeasure(MeasureService.MeasureEvent.NEO_PERSIST, measureId);
     }
 
-    public List<Node> getSubtreeInRootOf(String id) {
-        return neoRepository.getSubtreeInRootOf(id);
+    public void removeAllNodes() {
+        psRepository.deleteAll();
+        neoRepository.deleteAll();
     }
 }
