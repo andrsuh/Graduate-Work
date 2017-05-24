@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import ru.sukhoa.DAO.Postgres.MeasuresRepository;
 import ru.sukhoa.domain.MeasureEntity;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -66,10 +67,15 @@ public class MeasureService {
 
     @Scheduled(fixedDelayString = "${measureFrequency}")
     private void persistMeasures() {
+        repository.save(getAllCurrentMeasures());
+    }
+
+    @Nonnull
+    public List<MeasureEntity> getAllCurrentMeasures() {
         Date current = Calendar.getInstance().getTime();
-        Arrays.stream(MeasureEvent.values())
+        return Arrays.stream(MeasureEvent.values())
                 .map(event -> new MeasureEntity(event, getNumberOfOperations(event), getTotalTime(event), current))
-                .forEach(repository::save);
+                .collect(Collectors.toList());
     }
 
     public List<MeasureEntity> getAllMeasuresInRange(Date fromDate, Date toDate) {
