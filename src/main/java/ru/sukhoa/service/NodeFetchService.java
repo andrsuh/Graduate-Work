@@ -77,6 +77,7 @@ public class NodeFetchService {
         MeasureEvent event = MeasureEvent.valueOf(repository.getDatasourceName() + GET_CHILDREN);
         UUID measureId = measureService.startMeasure(event);
         List<Node> subtree = repository.getChildrenOfNode(id);
+        subtree.forEach(node -> node.setPartOf(null));
         measureService.fixMeasure(event, measureId);
 
         return subtree;
@@ -86,6 +87,7 @@ public class NodeFetchService {
         MeasureEvent event = MeasureEvent.valueOf(repository.getDatasourceName() + SUBTREE_FETCH);
         UUID measureId = measureService.startMeasure(event);
         List<Node> subtree = repository.getSubtreeInRootOf(id);
+        subtree.forEach(node -> node.setPartOf(null));
         measureService.fixMeasure(event, measureId);
 
         return subtree;
@@ -104,6 +106,7 @@ public class NodeFetchService {
         MeasureEvent event = MeasureEvent.valueOf(repository.getDatasourceName() + FIND_NODE);
         UUID measureId = measureService.startMeasure(event);
         Node result = repository.findOneByPk(nodeId);
+        result.setPartOf(null);
         measureService.fixMeasure(event, measureId);
 
         return result;
