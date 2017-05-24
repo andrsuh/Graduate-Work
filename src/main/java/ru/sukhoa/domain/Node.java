@@ -26,15 +26,6 @@ public class Node {
 
     private String type;
 
-//    @JsonIgnore
-//    private Set<AssignedAttribute> attributes;
-
-//    public Node(String name, Set<Node> partOf, Set<AssignedAttribute> attributes) {
-//        this.name = name;
-//        this.partOf = partOf;
-//        this.attributes = attributes;
-//    }
-
     public Node() {
     }
 
@@ -79,7 +70,7 @@ public class Node {
         this.name = name;
     }
 
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "graph_link",
             joinColumns = @JoinColumn(name = "left_node"),
