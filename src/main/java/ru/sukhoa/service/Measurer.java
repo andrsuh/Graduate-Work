@@ -8,8 +8,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class Measurer {
-    private AtomicLong totalTime = new AtomicLong();
-    private AtomicLong numOfOperations = new AtomicLong();
+    private final AtomicLong totalTime = new AtomicLong();
+    private final AtomicLong numOfOperations = new AtomicLong();
 
     private Map<UUID, Long> measures = new ConcurrentHashMap<>();
 
@@ -27,12 +27,12 @@ public class Measurer {
         long currentTime = Calendar.getInstance().getTimeInMillis();
 
         if (measureId == null) {
-            throw new IllegalArgumentException("MeasureUUID must not be a null");
+            throw new IllegalArgumentException("Null MeasureUUID has been passed");
         }
 
         Long measureStartTime = measures.get(measureId);
         if (measureStartTime == null) {
-            throw new IllegalArgumentException("Measure with specifies uuid does not exist");
+            throw new IllegalArgumentException("Measure with specified uuid does not exist : " + measureId);
         }
         measures.remove(measureId);
 
@@ -44,6 +44,12 @@ public class Measurer {
         }
         numOfOperations.incrementAndGet();
     }
+
+    public void reset() {
+        totalTime.set(0);
+        numOfOperations.set(0);
+    }
+
 
     public long getTotalTime() {
         return totalTime.get();
