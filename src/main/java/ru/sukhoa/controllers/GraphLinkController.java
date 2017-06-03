@@ -1,11 +1,11 @@
 package ru.sukhoa.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import ru.sukhoa.domain.GraphLink;
 import ru.sukhoa.service.GraphLinkService;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/links")
@@ -30,5 +30,10 @@ public class GraphLinkController {
     @RequestMapping(value = "/neo", method = RequestMethod.POST)
     public void linkNodesNeo(@RequestParam("child_pk") String childPk, @RequestParam("parent_pk") String parentPk) {
         graphLinkService.createNeo4jGraphLink(childPk, parentPk);
+    }
+
+    @RequestMapping(value = "/batch", method = RequestMethod.POST)
+    public void linkNodes(@RequestBody List<GraphLink> links) {
+        links.forEach(link -> graphLinkService.linkNodes(link.getLeftNodePk().getPk(), link.getRightNodePk().getPk()));
     }
 }
