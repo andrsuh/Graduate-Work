@@ -9,6 +9,7 @@ import ru.sukhoa.DAO.Postgres.GraphLinkRepositoryPostgres;
 import ru.sukhoa.DAO.Postgres.NodeRepositoryPostgres;
 import ru.sukhoa.domain.GraphLink;
 import ru.sukhoa.domain.Node;
+import ru.sukhoa.domain.NodeType;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -101,11 +102,12 @@ public class GraphLinkService {
         if (parent == null) {
             throw new IllegalArgumentException("Can not create graph link: parent does not exist");
         }
-        if (child.getType().equals("GROUP") && child.getPartOf() != null && !child.getPartOf().isEmpty()) {
+        if (child.getType().equals(NodeType.GROUP.toString())
+                && child.getPartOf() != null && !child.getPartOf().isEmpty()) {
             throw new IllegalArgumentException("Group already linked to another node");
         }
-        if (!parent.getType().equals("GROUP")) {
-            throw new IllegalArgumentException("Nodes can not be linked to non-group node");
+        if (!parent.getType().equals(NodeType.GROUP.toString()) && child.getType().equals(NodeType.GROUP.toString())) {
+            throw new IllegalArgumentException("Group nodes can not be linked to non-group node");
         }
     }
 
