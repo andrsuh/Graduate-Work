@@ -22,14 +22,22 @@ public class MeasureService {
     public MeasureService(MeasuresRepository repository, @Value("${cleanMeasures}") boolean cleanMeasures) {
         this.repository = repository;
 
-        if (cleanMeasures) {
-            repository.deleteAll();
-        }
-
         for (MeasureEvent event : MeasureEvent.values()) {
             measurers.put(event, new Measurer());
         }
+
+        if (cleanMeasures) {
+            cleanMeasures();
+        }
     }
+
+    public void cleanMeasures() {
+        Arrays.stream(MeasureEvent.values())
+                .map(this::getAproppriateMeasurer)
+                .forEach(Measurer::reset);
+        repository.deleteAll();
+    }
+
 
     public UUID startMeasure(@Nullable MeasureEvent event) {
         return getAproppriateMeasurer(event).startMeasure();
@@ -71,7 +79,7 @@ public class MeasureService {
     }
 
     @Nonnull
-    public List<MeasureEntity> getAllCurrentMeasures() {
+    private List<MeasureEntity> getAllCurrentMeasures() {
         Date current = Calendar.getInstance().getTime();
         return Arrays.stream(MeasureEvent.values())
                 .map(event -> new MeasureEntity(event, getNumberOfOperations(event), getTotalTime(event), current))
@@ -119,12 +127,14 @@ public class MeasureService {
         POSTGRES_PERSIST,
         POSTGRES_SUBTREE_FETCH,
         POSTGRES_CHECK_DESCENDANT,
+        POSTGRES_FIND_NODE_BY_NAME,
         POSTGRES_FIND_NODE,
         POSTGRES_GET_CHILDREN,
         POSTGRES_UPDATE,
         NEO_PERSIST,
         NEO_SUBTREE_FETCH,
         NEO_CHECK_DESCENDANT,
+        NEO_FIND_NODE_BY_NAME,
         NEO_FIND_NODE,
         NEO_GET_CHILDREN,
         NEO_UPDATE

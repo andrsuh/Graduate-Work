@@ -53,4 +53,8 @@ public class MeasureController {
         return measureService.getAllLastMeasures();
     }
 
+    @RequestMapping(method = RequestMethod.DELETE)
+    public void deleteMeasures() {
+        measureService.cleanMeasures();
+    }
 }
