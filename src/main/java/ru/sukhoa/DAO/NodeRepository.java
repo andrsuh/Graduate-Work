@@ -10,6 +10,8 @@ public interface NodeRepository {
 
     Node findOneByPk(String pk);
 
+    Node findOneByName(String name);
+
     List<Node> getSubtreeInRootOf(String id);
 
     boolean isNodeDescendantOfAnother(String descendantPk, String ancestorPk);
