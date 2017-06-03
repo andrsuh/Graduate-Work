@@ -22,24 +22,50 @@ public class NodeQueryController {
 
     @RequestMapping(value = "/postgres/if_descendant", method = RequestMethod.GET)
     public Boolean checkPostgresIsNodeADescendantOFAnother(
-            @RequestParam("child_id") final String childId, @RequestParam("parent_id") final String parentId) {
-        return nodeFetchService.checkPostgresIsNodeADescendantOFAnother(childId, parentId);
+            @RequestParam("child_id") final String childId, @RequestParam("parent_id") final String parentId,
+            @RequestParam(value = "times", defaultValue = "1") int times) {
+        if (times < 1) {
+            throw new IllegalArgumentException("Passed times value is incorrect: " + times);
+        }
+        Boolean result = null;
+        for (int i = 0; i < times; ++i) {
+            result = nodeFetchService.checkPostgresIsNodeADescendantOFAnother(childId, parentId);
+        }
+        return result;
     }
 
     @RequestMapping(value = "/neo/if_descendant", method = RequestMethod.GET)
     public Boolean checkNeoIsNodeADescendantOFAnother(
-            @RequestParam("child_id") final String childId, @RequestParam("parent_id") final String parentId) {
-        return nodeFetchService.checkNeoIsNodeADescendantOFAnother(childId, parentId);
+            @RequestParam("child_id") final String childId, @RequestParam("parent_id") final String parentId,
+            @RequestParam(value = "times", defaultValue = "1") int times) {
+        if (times < 1) {
+            throw new IllegalArgumentException("Passed times value is incorrect: " + times);
+        }
+        Boolean result = null;
+        for (int i = 0; i < times; ++i) {
+            result = nodeFetchService.checkNeoIsNodeADescendantOFAnother(childId, parentId);
+        }
+        return result;
     }
 
     @RequestMapping(value = "/neo", method = RequestMethod.GET)
-    public Node findNeoNodeBuId(@RequestParam("id") final String nodeId) {
+    public Node findNeoNodeById(@RequestParam("id") final String nodeId) {
         return nodeFetchService.findNeoNodeById(nodeId);
     }
 
     @RequestMapping(value = "/postgres", method = RequestMethod.GET)
-    public Node findPostgresNodeBuId(@RequestParam("id") final String nodeId) {
+    public Node findPostgresNodeById(@RequestParam("id") final String nodeId) {
         return nodeFetchService.findPostgresNodeById(nodeId);
+    }
+
+    @RequestMapping(value = "/neo/get_by_name", method = RequestMethod.GET)
+    public Node findNeoNodeByName(@RequestParam("name") final String name) {
+        return nodeFetchService.findNeoNodeByName(name);
+    }
+
+    @RequestMapping(value = "/postgres/get_by_name", method = RequestMethod.GET)
+    public Node findPostgresNodeByName(@RequestParam("name") final String name) {
+        return nodeFetchService.findNeoNodeByName(name);
     }
 
     @RequestMapping(value = "/postgres/subtree", method = RequestMethod.GET)
